@@ -1,0 +1,3278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星辰 - 多世界观角色管理系统</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="appl-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --dark: #2d3436;
+            --light: #f7f7f7;
+            --gray: #dfe6e9;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* 顶部导航栏样式 */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 70px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-right: 30px;
+        }
+        
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .logo h1 {
+            margin-left: 15px;
+            color: var(--primary);
+            font-size: 1.5rem;
+            white-space: nowrap;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            height: 100%;
+            flex-grow: 1;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .nav-links::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        
+        .nav-links li {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            height: 100%;
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-links i {
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        
+        /* 主内容区样式 */
+        .main-content {
+            margin-top: 70px;
+            padding: 40px;
+        }
+        
+        .section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 40px;
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .section-header h2 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-right: 20px;
+        }
+        
+        .section-header i {
+            background: var(--secondary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        /* 世界观管理 */
+        .world-management {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .world-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .world-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .world-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .world-item.active {
+            border: 3px solid var(--primary);
+        }
+        
+        .world-item h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .world-item p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .world-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 角色卡管理 */
+        .character-management {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .character-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .character-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .character-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .character-item.active {
+            border: 3px solid var(--primary);
+        }
+        
+        .character-img {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .character-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .character-item:hover .character-img img {
+            transform: scale(1.1);
+        }
+        
+        .character-info {
+            padding: 15px;
+        }
+        
+        .character-info h4 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .character-info p {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .character-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+        
+        .character-item:hover .character-overlay {
+            transform: translateY(0);
+        }
+        
+        /* 角色介绍 */
+        .character-info-container {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .character-image {
+            flex: 1;
+            position: relative;
+        }
+        
+        .character-image img {
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .character-image img:hover {
+            transform: scale(1.02);
+        }
+        
+        .character-image .change-image {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .character-image:hover .change-image {
+            display: block;
+        }
+        
+        .character-details {
+            flex: 1;
+        }
+        
+        .character-details h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .character-details p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        
+        .edit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .edit-btn:hover {
+            background: var(--accent);
+        }
+        
+        .save-btn {
+            background: #00b894;
+        }
+        
+        .save-btn:hover {
+            background: #00997b;
+        }
+        
+        .cancel-btn {
+            background: var(--gray);
+            color: var(--dark);
+        }
+        
+        .cancel-btn:hover {
+            background: #b2bec3;
+        }
+        
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .stat-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-item i {
+            background: var(--accent);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        /* 世界观 */
+        .world-timeline {
+            position: relative;
+            margin: 40px 0;
+            padding-left: 30px;
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .timeline-item {
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid white;
+        }
+        
+        .timeline-item h4 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .timeline-item p {
+            margin-bottom: 10px;
+        }
+        
+        /* 衣橱 */
+        .wardrobe-management {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .wardrobe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .wardrobe-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .wardrobe-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .wardrobe-img {
+            height: 220px;
+            overflow: hidden;
+        }
+        
+        .wardrobe-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .wardrobe-item:hover .wardrobe-img img {
+            transform: scale(1.1);
+        }
+        
+        .wardrobe-info {
+            padding: 20px;
+        }
+        
+        .wardrobe-info h4 {
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        
+        .wardrobe-info p {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .wardrobe-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+        
+        .wardrobe-item:hover .wardrobe-overlay {
+            transform: translateY(0);
+        }
+        
+        /* 相册 */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .gallery-item {
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: 280px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            transform: translateY(0);
+        }
+        
+        /* 立绘展示 */
+        .showcase-management {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .character-showcase {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .showcase-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .showcase-item:hover {
+            transform: translateY(-10px);
+        }
+        
+        .showcase-item img {
+            width: 200px;
+            height: 350px;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+        
+        .showcase-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .showcase-item h4 {
+            margin-top: 15px;
+            color: var(--primary);
+        }
+        
+        .showcase-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+        
+        .showcase-item:hover .showcase-overlay {
+            transform: translateY(0);
+        }
+        
+        /* 管理按钮 */
+        .album-management,
+        .wardrobe-management,
+        .showcase-management,
+        .world-management,
+        .character-management {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .album-management input,
+        .wardrobe-management input,
+        .showcase-management input,
+        .world-management input,
+        .character-management input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        
+        .album-management input:focus,
+        .wardrobe-management input:focus,
+        .showcase-management input:focus,
+        .world-management input:focus,
+        .character-management input:focus {
+            border-color: var(--primary);
+        }
+        
+        .album-management button,
+        .wardrobe-management button,
+        .showcase-management button,
+        .world-management button,
+        .character-management button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .album-management button:hover,
+        .wardrobe-management button:hover,
+        .showcase-management button:hover,
+        .world-management button:hover,
+        .character-management button:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .album-actions,
+        .wardrobe-actions,
+        .showcase-actions,
+        .world-actions,
+        .character-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .album-actions button,
+        .wardrobe-actions button,
+        .showcase-actions button,
+        .world-actions button,
+        .character-actions button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .album-actions button:hover,
+        .wardrobe-actions button:hover,
+        .showcase-actions button:hover,
+        .world-actions button:hover,
+        .character-actions button:hover {
+            background: var(--accent);
+        }
+        
+        .album-actions button.delete,
+        .wardrobe-actions button.delete,
+        .showcase-actions button.delete,
+        .world-actions button.delete,
+        .character-actions button.delete {
+            background: #ff7675;
+        }
+        
+        .album-actions button.delete:hover,
+        .wardrobe-actions button.delete:hover,
+        .showcase-actions button.delete:hover,
+        .world-actions button.delete:hover,
+        .character-actions button.delete:hover {
+            background: #d63031;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .main-content {
+                padding: 30px;
+            }
+            
+            .character-info-container {
+                flex-direction: column;
+            }
+            
+            .section {
+                padding: 30px;
+            }
+            
+            .character-image .change-image {
+                display: block;
+            }
+            
+            /* 导航栏响应式 */
+            .top-nav {
+                height: auto;
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                width: 100%;
+                height: auto;
+            }
+            
+            .nav-links li {
+                width: 100%;
+            }
+            
+            .nav-links a {
+                padding: 15px 20px;
+            }
+            
+            .main-content {
+                margin-top: 120px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 20px;
+                margin-top: 100px;
+            }
+            
+            .character-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .gallery-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .album-management,
+            .wardrobe-management,
+            .showcase-management,
+            .world-management,
+            .character-management {
+                flex-direction: column;
+            }
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            margin-top: 20px;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .modal-header .close {
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .modal-footer button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        
+        .modal-footer .cancel {
+            background: var(--gray);
+        }
+        
+        .modal-footer .confirm {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .modal-footer button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        /* 文件上传样式 */
+        .file-upload {
+            margin-bottom: 20px;
+        }
+        
+        .file-upload-label {
+            display: block;
+            padding: 15px;
+            border: 2px dashed var(--secondary);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .file-upload-label:hover {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+        }
+        
+        .file-upload-label i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .file-upload-input {
+            display: none;
+        }
+        
+        .image-preview {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        
+        .modal-input:focus {
+            border-color: var(--primary);
+        }
+        
+        /* 编辑模式 */
+        .editable {
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .edit-mode .editable {
+            border: 1px dashed var(--secondary);
+            background-color: rgba(162, 155, 254, 0.1);
+            padding: 10px;
+            outline: none;
+        }
+        
+        .edit-mode .editable:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: rgba(162, 155, 254, 0.2);
+        }
+        
+        .edit-controls {
+            display: none;
+        }
+        
+        .edit-area {
+            margin-bottom: 20px;
+        }
+        
+        .edit-area h3 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* 图片查看大图 */
+        .image-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .image-viewer.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .image-viewer img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        
+        .image-viewer .close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        
+        /* 全局编辑按钮 */
+        .global-edit-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .global-edit-btn:hover {
+            background: var(--accent);
+            transform: scale(1.1);
+        }
+        
+        /* 选项卡样式 */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--dark);
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab:hover:not(.active) {
+            color: var(--accent);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="auth-status" style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+  <button id="signin-btn" style="padding: 5px 10px; background: #6c5ce7; color: white; border: none; border-radius: 5px;">
+    <i class="fas fa-sign-in-alt"></i> 登录
+  </button>
+</div>
+    <!-- 顶部导航栏 -->
+    <nav class="top-nav">
+        <div class="logo">
+            <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/2a9c4b1e-2e14-4b6d-8c4f-0c3f7a8c7b3f/dfr9q3h-0e5f3a3a-2b4c-4b9d-8a9a-9a9a9a9a9a9a.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzJhOWM0YjFlLTJlMTQtNGI2ZC04YzRmLTBjM2Y3YThjN2IzZlwvZGZyOXEzaC0wZTVmM2EzYS0yYjRjLTRiOWQtOGE5YS05YTlhOWE5YTlhOWEuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0" alt="星辰">
+            <h1 class="editable" id="logo-name">星辰</h1>
+        </div>
+        
+        <ul class="nav-links">
+            <li><a href="#worlds" class="active"><i class="fas fa-globe"></i> <span class="editable" id="nav-worlds">世界观管理</span></a></li>
+            <li><a href="#characters"><i class="fas fa-users"></i> <span class="editable" id="nav-characters">角色卡管理</span></a></li>
+            <li><a href="#intro"><i class="fas fa-user"></i> <span class="editable" id="nav-intro">角色介绍</span></a></li>
+            <li><a href="#world"><i class="fas fa-globe-asia"></i> <span class="editable" id="nav-world">世界观</span></a></li>
+            <li><a href="#wardrobe"><i class="fas fa-tshirt"></i> <span class="editable" id="nav-wardrobe">OC衣橱</span></a></li>
+            <li><a href="#gallery"><i class="fas fa-images"></i> <span class="editable" id="nav-gallery">OC相册</span></a></li>
+            <li><a href="#showcase"><i class="fas fa-paint-brush"></i> <span class="editable" id="nav-showcase">立绘展示</span></a></li>
+        </ul>
+    </nav>
+    
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 世界观管理部分 -->
+        <section id="worlds" class="section">
+            <div class="section-header">
+                <i class="fas fa-globe"></i>
+                <h2 class="editable" id="worlds-title">世界观管理</h2>
+            </div>
+            
+            <div class="world-management">
+                <input type="text" id="worldName" placeholder="输入世界观名称" class="editable">
+                <button id="addWorld"><i class="fas fa-plus"></i> 添加世界观</button>
+            </div>
+            
+            <div class="world-list" id="worldContainer">
+                <!-- 世界观列表将通过JavaScript动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 角色卡管理部分 -->
+        <section id="characters" class="section">
+            <div class="section-header">
+                <i class="fas fa-users"></i>
+                <h2 class="editable" id="characters-title">角色卡管理</h2>
+            </div>
+            
+            <div class="character-management">
+                <input type="text" id="characterNameInput" placeholder="输入角色名称" class="editable">
+                <button id="addCharacter"><i class="fas fa-plus"></i> 添加角色</button>
+            </div>
+            
+            <div class="character-list" id="characterContainer">
+                <!-- 角色列表将通过JavaScript动态生成 -->
+            </div>
+        </section>
+        
+        <!-- 角色介绍部分 -->
+        <section id="intro" class="section">
+            <div class="section-header">
+                <i class="fas fa-user"></i>
+                <h2 class="editable" id="intro-title">角色介绍</h2>
+            </div>
+            
+            <div class="character-info-container">
+                <div class="character-image">
+                    <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="星辰" id="characterImage">
+                    <div class="change-image" id="changeCharacterImage">更换图片</div>
+                </div>
+                
+                <div class="character-details">
+                    <div class="edit-area">
+                        <h3 class="editable" id="characterName">星辰 - 星光守护者</h3>
+                    </div>
+                    
+                    <div class="edit-area">
+                        <p class="editable" id="characterIntro">星辰是来自天穹王国的星光守护者，拥有操控星辰之力的特殊能力。她性格温柔但坚韧，在王国面临危机时挺身而出，肩负起守护王国与星辰平衡的重任。</p>
+                    </div>
+                    
+                    <div class="character-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-heart"></i>
+                            <div class="edit-area">
+                                <strong class="editable" id="stat-age">年龄</strong>
+                                <p class="editable" id="stat-age-value">18岁</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-birthday-cake"></i>
+                            <div class="edit-area">
+                                <strong class="editable" id="stat-birthday">生日</strong>
+                                <p class="editable" id="stat-birthday-value">12月7日</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-magic"></i>
+                            <div class="edit-area">
+                                <strong class="editable" id="stat-ability">能力</strong>
+                                <p class="editable" id="stat-ability-value">星辰操控</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-home"></i>
+                            <div class="edit-area">
+                                <strong class="editable" id="stat-affiliation">所属</strong>
+                                <p class="editable" id="stat-affiliation-value">天穹王国</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="edit-area">
+                        <p class="editable" id="characterBio">星辰从小在星之塔长大，由大祭司抚养。她与星空有着特殊的连接，能够在夜晚汲取星辰的力量。当暗影势力威胁王国时，她必须学会掌控自己的力量，保护她所珍视的一切。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 世界观部分 -->
+        <section id="world" class="section">
+            <div class="section-header">
+                <i class="fas fa-globe-asia"></i>
+                <h2 class="editable" id="world-title">世界观设定</h2>
+            </div>
+            
+            <div class="edit-area">
+                <p class="editable" id="world-description">故事发生在艾斯特拉大陆，一个魔法与科技并存的世界。大陆由四个主要王国组成：天穹王国、暗影帝国、森林联盟和海洋联邦。</p>
+            </div>
+            
+            <div class="world-timeline" id="timeline-container">
+                <div class="timeline-item">
+                    <div class="edit-area">
+                        <h4 class="editable" id="timeline-title-1">创世纪元</h4>
+                    </div>
+                    <div class="edit-area">
+                        <p class="editable" id="timeline-content-1">世界由星辰之母创造，她将星辰之力撒向大地，诞生了第一批能够使用魔法的生命体。</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="edit-area">
+                        <h4 class="editable" id="timeline-title-2">王国纪元</h4>
+                    </div>
+                    <div class="edit-area">
+                        <p class="editable" id="timeline-content-2">四大王国相继建立，各自发展出独特的文化与魔法体系。天穹王国专注于星辰魔法，暗影帝国研究暗影之力，森林联盟精通自然魔法，海洋联邦掌握潮汐之术。</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="edit-area">
+                        <h4 class="editable" id="timeline-title-3">暗影入侵</h4>
+                    </div>
+                    <div class="edit-area">
+                        <p class="editable" id="timeline-content-3">暗影帝国试图夺取其他王国的魔法源泉，发动了席卷大陆的战争。星辰作为天穹王国的守护者，必须联合其他王国的力量，阻止暗影帝国的野心。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="edit-btn" id="addTimelineItem"><i class="fas fa-plus"></i> 添加时间线项目</button>
+        </section>
+        
+        <!-- 衣橱部分 -->
+        <section id="wardrobe" class="section">
+            <div class="section-header">
+                <i class="fas fa-tshirt"></i>
+                <h2 class="editable" id="wardrobe-title">OC衣橱</h2>
+            </div>
+            
+            <div class="wardrobe-management">
+                <input type="text" id="wardrobeName" placeholder="输入服装名称" class="editable">
+                <button id="addWardrobe"><i class="fas fa-plus"></i> 添加服装</button>
+            </div>
+            
+            <div class="wardrobe-grid" id="wardrobeContainer">
+                <div class="wardrobe-item">
+                    <div class="wardrobe-img">
+                        <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="日常服装">
+                    </div>
+                    <div class="wardrobe-info">
+                        <div class="edit-area">
+                            <h4 class="editable" id="wardrobe-title-1">日常服装</h4>
+                        </div>
+                        <div class="edit-area">
+                            <p class="editable" id="wardrobe-desc-1">白色连衣裙搭配蓝色束腰，简约舒适</p>
+                        </div>
+                    </div>
+                    <div class="wardrobe-overlay">
+                        <button class="delete-wardrobe" data-wardrobe="0">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="wardrobe-item">
+                    <div class="wardrobe-img">
+                        <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1036&q=80" alt="战斗服装">
+                    </div>
+                    <div class="wardrobe-info">
+                        <div class="edit-area">
+                            <h4 class="editable" id="wardrobe-title-2">战斗服装</h4>
+                        </div>
+                        <div class="edit-area">
+                            <p class="editable" id="wardrobe-desc-2">轻便铠甲与星纹披风，便于行动</p>
+                        </div>
+                    </div>
+                    <div class="wardrobe-overlay">
+                        <button class="delete-wardrobe" data-wardrobe="1">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="wardrobe-item">
+                    <div class="wardrobe-img">
+                        <img src="https://images.unsplash.com/photo-1529903384028-929ae6dccdf7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="仪式礼服">
+                    </div>
+                    <div class="wardrobe-info">
+                        <div class="edit-area">
+                            <h4 class="editable" id="wardrobe-title-3">仪式礼服</h4>
+                        </div>
+                        <div class="edit-area">
+                            <p class="editable" id="wardrobe-desc-3">镶嵌水晶的蓝色礼服，用于重要场合</p>
+                        </div>
+                    </div>
+                    <div class="wardrobe-overlay">
+                        <button class="delete-wardrobe" data-wardrobe="2">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="wardrobe-item">
+                    <div class="wardrobe-img">
+                        <img src="https://images.unsplash.com/photo-1575537302964-96cd47c06b1b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="冬季服装">
+                    </div>
+                    <div class="wardrobe-info">
+                        <div class="edit-area">
+                            <h4 class="editable" id="wardrobe-title-4">冬季服装</h4>
+                        </div>
+                        <div class="edit-area">
+                            <p class="editable" id="wardrobe-desc-4">毛绒斗篷与保暖长靴，适合寒冷气候</p>
+                        </div>
+                    </div>
+                    <div class="wardrobe-overlay">
+                        <button class="delete-wardrobe" data-wardrobe="3">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 相册部分 -->
+        <section id="gallery" class="section">
+            <div class="section-header">
+                <i class="fas fa-images"></i>
+                <h2 class="editable" id="gallery-title">OC相册</h2>
+            </div>
+            
+            <!-- 相册管理 -->
+            <div class="album-management">
+                <input type="text" id="albumName" placeholder="输入新相册名称" class="editable">
+                <button id="createAlbum"><i class="fas fa-plus"></i> 创建相册</button>
+            </div>
+            
+            <!-- 相册列表 -->
+            <div id="albumsContainer">
+                <div class="section">
+                    <div class="edit-area">
+                        <h3 class="editable" id="album-title-1">默认相册</h3>
+                    </div>
+                    <div class="album-actions">
+                        <button class="add-image" data-album="0"><i class="fas fa-plus"></i> 添加图片</button>
+                        <button class="delete-album" data-album="0"><i class="fas fa-trash"></i> 删除相册</button>
+                    </div>
+                    <div class="gallery-container" id="album-0">
+                        <div class="gallery-item">
+                            <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="花园中的星辰" data-image="https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80">
+                            <div class="gallery-overlay">
+                                <div class="edit-area">
+                                    <h4 class="editable" id="album-image-title-1">花园中的星辰</h4>
+                                </div>
+                                <div class="edit-area">
+                                    <p class="editable" id="album-image-desc-1">在天穹王国的皇家花园中休息</p>
+                                </div>
+                                <button class="delete-image" data-album="0" data-image="0">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="魔法训练" data-image="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80">
+                            <div class="gallery-overlay">
+                                <div class="edit-area">
+                                    <h4 class="editable" id="album-image-title-2">魔法训练</h4>
+                                </div>
+                                <div class="edit-area">
+                                    <p class="editable" id="album-image-desc-2">在星之塔练习操控星辰之力</p>
+                                </div>
+                                <button class="delete-image" data-album="0" data-image="1">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 立绘展示部分 -->
+        <section id="showcase" class="section">
+            <div class="section-header">
+                <i class="fas fa-paint-brush"></i>
+                <h2 class="editable" id="showcase-title">立绘展示</h2>
+            </div>
+            
+            <div class="showcase-management">
+                <input type="text" id="showcaseName" placeholder="输入立绘名称" class="editable">
+                <button id="addShowcase"><i class="fas fa-plus"></i> 添加立绘</button>
+            </div>
+            
+            <div class="character-showcase" id="showcaseContainer">
+                <div class="showcase-item">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=776&q=80" alt="标准立绘">
+                    <div class="edit-area">
+                        <h4 class="editable" id="showcase-title-1">标准立绘</h4>
+                    </div>
+                    <div class="showcase-overlay">
+                        <button class="delete-showcase" data-showcase="0">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="showcase-item">
+                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="战斗姿态">
+                    <div class="edit-area">
+                        <h4 class="editable" id="showcase-title-2">战斗姿态</h4>
+                    </div>
+                    <div class="showcase-overlay">
+                        <button class="delete-showcase" data-showcase="1">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="showcase-item">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="魔法释放">
+                    <div class="edit-area">
+                        <h4 class="editable" id="showcase-title-3">魔法释放</h4>
+                    </div>
+                    <div class="showcase-overlay">
+                        <button class="delete-showcase" data-showcase="2">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="footer">
+            <div class="edit-area">
+                <p class="editable" id="footer-text">© 2023 星辰角色档案 | 原创角色展示网站</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 全局编辑按钮 -->
+    <button class="global-edit-btn" id="globalEditBtn">
+        <i class="fas fa-edit"></i>
+    </button>
+    
+    <!-- 添加世界观模态框 -->
+    <div id="addWorldModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加世界观</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="worldTitle" placeholder="世界观名称" class="modal-input">
+                <textarea id="worldDesc" placeholder="世界观描述" class="modal-input" rows="4"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel">取消</button>
+                <button class="confirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加角色卡模态框 -->
+    <div id="addCharacterModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加角色卡</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="characterTitle" placeholder="角色名称" class="modal-input">
+                <select id="characterWorld" class="modal-input">
+                    <option value="">选择所属世界观</option>
+                    <!-- 世界观选项将通过JavaScript动态生成 -->
+                </select>
+                <div class="file-upload">
+                    <label for="characterFile" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>点击或拖拽角色图片到此处上传</p>
+                        <input type="file" id="characterFile" class="file-upload-input" accept="image/*">
+                    </label>
+                </div>
+                <div class="image-preview" id="characterPreview">
+                    <img id="previewCharacter" src="#" alt="角色预览">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel">取消</button>
+                <button class="confirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加图片模态框 -->
+    <div id="addImageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加图片到相册</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="file-upload">
+                    <label for="imageFile" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>点击或拖拽文件到此处上传</p>
+                        <input type="file" id="imageFile" class="file-upload-input" accept="image/*">
+                    </label>
+                </div>
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImage" src="#" alt="图片预览">
+                </div>
+                <input type="text" id="imageTitle" placeholder="图片标题" class="modal-input">
+                <input type="text" id="imageDesc" placeholder="图片描述" class="modal-input">
+            </div>
+            <div class="modal-footer">
+                <button class="cancel">取消</button>
+                <button class="confirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加服装模态框 -->
+    <div id="addWardrobeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加服装</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="file-upload">
+                    <label for="wardrobeFile" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>点击或拖拽服装图片到此处上传</p>
+                        <input type="file" id="wardrobeFile" class="file-upload-input" accept="image/*">
+                    </label>
+                </div>
+                <div class="image-preview" id="wardrobePreview">
+                    <img id="previewWardrobe" src="#" alt="服装预览">
+                </div>
+                <input type="text" id="wardrobeTitle" placeholder="服装名称" class="modal-input">
+                <input type="text" id="wardrobeDesc" placeholder="服装描述" class="modal-input">
+            </div>
+            <div class="modal-footer">
+                <button class="cancel">取消</button>
+                <button class="confirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加立绘模态框 -->
+    <div id="addShowcaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加立绘</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="file-upload">
+                    <label for="showcaseFile" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>点击或拖拽立绘图片到此处上传</p>
+                        <input type="file" id="showcaseFile" class="file-upload-input" accept="image/*">
+                    </label>
+                </div>
+                <div class="image-preview" id="showcasePreview">
+                    <img id="previewShowcase" src="#" alt="立绘预览">
+                </div>
+                <input type="text" id="showcaseTitle" placeholder="立绘名称" class="modal-input">
+            </div>
+            <div class="modal-footer">
+                <button class="cancel">取消</button>
+                <button class="confirm">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 更换角色图片模态框 -->
+    <div id="changeCharacterImageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>更换角色图片</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="file-upload">
+                    <label for="characterImageFile" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>点击或拖拽角色图片到此处上传</p>
+                        <input type="file" id="characterImageFile" class="file-upload-input" accept="image/*">
+                    </label>
+                </div>
+                <div class="image-preview" id="characterImagePreview">
+                    <img id="previewCharacterImage" src="#" alt="角色图片预览">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel">取消</button>
+                <button class="confirm">确认更换</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 删除确认模态框 -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除这个项目吗？此操作无法撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel">取消</button>
+                <button class="confirm delete">确认删除</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 图片查看器 -->
+    <div class="image-viewer" id="imageViewer">
+        <span class="close">&times;</span>
+        <img id="viewerImage" src="" alt="查看大图">
+    </div>
+    <!-- 在现有script标签前添加 -->
+     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script><script src="/firebase.js"></script>
+     <script>
+        // 登录按钮事件
+document.getElementById('signin-btn').addEventListener('click', signIn);
+
+// 更新登录状态显示
+function updateAuthUI(user) {
+  const authDiv = document.getElementById('auth-status');
+  if (user) {
+    authDiv.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="${user.photoURL || 'https://via.placeholder.com/30'}" 
+             width="30" height="30" style="border-radius: 50%;">
+        <button id="signout-btn" style="padding: 5px 10px; background: #ff7675; color: white; border: none; border-radius: 5px;">
+          <i class="fas fa-sign-out-alt"></i> 登出
+        </button>
+      </div>
+    `;
+    document.getElementById('signout-btn').addEventListener('click', signOut);
+  }
+}
+
+// 添加到firebase.auth().onAuthStateChanged回调中
+firebase.auth().onAuthStateChanged(user => {
+  updateAuthUI(user);
+  if (user) {
+    loadData();
+  } else {
+    const localData = localStorage.getItem('ocWorldSystem');
+    if (localData) appData = JSON.parse(localData);
+    initPage();
+  }
+});
+        // 数据存储结构
+        let appData = JSON.parse(localStorage.getItem('ocWorldSystem')) || {
+            worlds: [
+                {
+                    id: 'world-1',
+                    name: '艾斯特拉大陆',
+                    description: '故事发生在艾斯特拉大陆，一个魔法与科技并存的世界。大陆由四个主要王国组成：天穹王国、暗影帝国、森林联盟和海洋联邦。',
+                    timeline: [
+                        {
+                            title: '创世纪元',
+                            content: '世界由星辰之母创造，她将星辰之力撒向大地，诞生了第一批能够使用魔法的生命体。'
+                        },
+                        {
+                            title: '王国纪元',
+                            content: '四大王国相继建立，各自发展出独特的文化与魔法体系。天穹王国专注于星辰魔法，暗影帝国研究暗影之力，森林联盟精通自然魔法，海洋联邦掌握潮汐之术。'
+                        },
+                        {
+                            title: '暗影入侵',
+                            content: '暗影帝国试图夺取其他王国的魔法源泉，发动了席卷大陆的战争。星辰作为天穹王国的守护者，必须联合其他王国的力量，阻止暗影帝国的野心。'
+                        }
+                    ],
+                    characters: [
+                        {
+                            id: 'char-1',
+                            name: '星辰 - 星光守护者',
+                            worldId: 'world-1',
+                            image: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                            intro: '星辰是来自天穹王国的星光守护者，拥有操控星辰之力的特殊能力。她性格温柔但坚韧，在王国面临危机时挺身而出，肩负起守护王国与星辰平衡的重任。',
+                            bio: '星辰从小在星之塔长大，由大祭司抚养。她与星空有着特殊的连接，能够在夜晚汲取星辰的力量。当暗影势力威胁王国时，她必须学会掌控自己的力量，保护她所珍视的一切。',
+                            stats: {
+                                age: '18岁',
+                                birthday: '12月7日',
+                                ability: '星辰操控',
+                                affiliation: '天穹王国'
+                            },
+                            wardrobe: [
+                                {
+                                    data: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                                    title: '日常服装',
+                                    desc: '白色连衣裙搭配蓝色束腰，简约舒适'
+                                },
+                                {
+                                    data: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1036&q=80',
+                                    title: '战斗服装',
+                                    desc: '轻便铠甲与星纹披风，便于行动'
+                                },
+                                {
+                                    data: 'https://images.unsplash.com/photo-1529903384028-929ae6dccdf7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                                    title: '仪式礼服',
+                                    desc: '镶嵌水晶的蓝色礼服，用于重要场合'
+                                },
+                                {
+                                    data: 'https://images.unsplash.com/photo-1575537302964-96cd47c06b1b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80',
+                                    title: '冬季服装',
+                                    desc: '毛绒斗篷与保暖长靴，适合寒冷气候'
+                                }
+                            ],
+                            albums: [
+                                {
+                                    name: '默认相册',
+                                    images: [
+                                        {
+                                            data: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                                            title: '花园中的星辰',
+                                            desc: '在天穹王国的皇家花园中休息'
+                                        },
+                                        {
+                                            data: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                                            title: '魔法训练',
+                                            desc: '在星之塔练习操控星辰之力'
+                                        }
+                                    ]
+                                }
+                            ],
+                            showcase: [
+                                {
+                                    data: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=776&q=80',
+                                    title: '标准立绘'
+                                },
+                                {
+                                    data: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                                    title: '战斗姿态'
+                                },
+                                {
+                                    data: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                                    title: '魔法释放'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            currentWorldId: 'world-1',
+            currentCharacterId: 'char-1'
+        };
+        
+        // 当前选中的世界观和角色卡
+        let currentWorld = appData.worlds.find(w => w.id === appData.currentWorldId);
+        let currentCharacter = currentWorld.characters.find(c => c.id === appData.currentCharacterId);
+        
+        // DOM元素
+        const characterImage = document.getElementById('characterImage');
+        const changeCharacterImageBtn = document.getElementById('changeCharacterImage');
+        const globalEditBtn = document.getElementById('globalEditBtn');
+        
+        const worldContainer = document.getElementById('worldContainer');
+        const addWorldBtn = document.getElementById('addWorld');
+        const worldNameInput = document.getElementById('worldName');
+        
+        const characterContainer = document.getElementById('characterContainer');
+        const addCharacterBtn = document.getElementById('addCharacter');
+        const characterNameInput = document.getElementById('characterNameInput');
+        
+        const albumsContainer = document.getElementById('albumsContainer');
+        const createAlbumBtn = document.getElementById('createAlbum');
+        const albumNameInput = document.getElementById('albumName');
+        const addImageModal = document.getElementById('addImageModal');
+        const confirmModal = document.getElementById('confirmModal');
+        const imageFileInput = document.getElementById('imageFile');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        
+        const wardrobeContainer = document.getElementById('wardrobeContainer');
+        const addWardrobeBtn = document.getElementById('addWardrobe');
+        const wardrobeNameInput = document.getElementById('wardrobeName');
+        const addWardrobeModal = document.getElementById('addWardrobeModal');
+        const wardrobeFileInput = document.getElementById('wardrobeFile');
+        const wardrobePreview = document.getElementById('wardrobePreview');
+        const previewWardrobe = document.getElementById('previewWardrobe');
+        
+        const showcaseContainer = document.getElementById('showcaseContainer');
+        const addShowcaseBtn = document.getElementById('addShowcase');
+        const showcaseNameInput = document.getElementById('showcaseName');
+        const addShowcaseModal = document.getElementById('addShowcaseModal');
+        const showcaseFileInput = document.getElementById('showcaseFile');
+        const showcasePreview = document.getElementById('showcasePreview');
+        const previewShowcase = document.getElementById('previewShowcase');
+        
+        const changeCharacterImageModal = document.getElementById('changeCharacterImageModal');
+        const characterImageFileInput = document.getElementById('characterImageFile');
+        const characterImagePreview = document.getElementById('characterImagePreview');
+        const previewCharacterImage = document.getElementById('previewCharacterImage');
+        
+        const addWorldModal = document.getElementById('addWorldModal');
+        const addCharacterModal = document.getElementById('addCharacterModal');
+        const characterFileInput = document.getElementById('characterFile');
+        const characterPreview = document.getElementById('characterPreview');
+        const previewCharacter = document.getElementById('previewCharacter');
+        
+        const imageViewer = document.getElementById('imageViewer');
+        const viewerImage = document.getElementById('viewerImage');
+        
+        // 当前选中的索引
+        let currentAlbumIndex = 0;
+        let currentWardrobeIndex = 0;
+        let currentShowcaseIndex = 0;
+        let currentImageIndex = 0;
+        
+        // 选中的文件
+        let selectedFile = null;
+        let selectedWardrobeFile = null;
+        let selectedShowcaseFile = null;
+        let selectedCharacterImageFile = null;
+        let selectedCharacterFile = null;
+        
+        let isGlobalEditMode = false;
+        
+        // 初始化页面
+        function initPage() {
+            // 渲染世界观和角色卡
+            renderWorlds();
+            renderCharacters();
+            
+            // 加载当前选中的角色卡数据
+            loadCharacterData();
+            
+            // 添加事件监听器
+            addEventListeners();
+        }
+        
+        // 渲染世界观列表
+        function renderWorlds() {
+            worldContainer.innerHTML = '';
+            
+            appData.worlds.forEach(world => {
+                const worldElement = document.createElement('div');
+                worldElement.className = `world-item ${world.id === appData.currentWorldId ? 'active' : ''}`;
+                worldElement.dataset.worldId = world.id;
+                worldElement.innerHTML = `
+                    <h3 class="editable">${world.name}</h3>
+                    <p class="editable">${world.description.substring(0, 100)}${world.description.length > 100 ? '...' : ''}</p>
+                    <div class="world-actions">
+                        <button class="select-world" data-world="${world.id}">
+                            <i class="fas fa-check"></i> 选择
+                        </button>
+                        <button class="delete-world" data-world="${world.id}">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+                
+                worldContainer.appendChild(worldElement);
+            });
+        }
+        
+        // 渲染角色卡列表
+        function renderCharacters() {
+            characterContainer.innerHTML = '';
+            
+            currentWorld.characters.forEach(character => {
+                const characterElement = document.createElement('div');
+                characterElement.className = `character-item ${character.id === appData.currentCharacterId ? 'active' : ''}`;
+                characterElement.dataset.characterId = character.id;
+                characterElement.innerHTML = `
+                    <div class="character-img">
+                        <img src="${character.image}" alt="${character.name}">
+                    </div>
+                    <div class="character-info">
+                        <h4 class="editable">${character.name.split(' - ')[0]}</h4>
+                        <p class="editable">${character.intro.substring(0, 50)}${character.intro.length > 50 ? '...' : ''}</p>
+                    </div>
+                    <div class="character-overlay">
+                        <button class="select-character" data-character="${character.id}">
+                            <i class="fas fa-check"></i> 选择
+                        </button>
+                        <button class="delete-character" data-character="${character.id}">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+                
+                characterContainer.appendChild(characterElement);
+            });
+        }
+        
+        // 加载角色数据
+        function loadCharacterData() {
+            if (!currentCharacter) return;
+            
+            characterImage.src = currentCharacter.image;
+            
+            // 设置角色名称和介绍
+            document.getElementById('characterName').textContent = currentCharacter.name;
+            document.getElementById('characterIntro').textContent = currentCharacter.intro;
+            document.getElementById('characterBio').textContent = currentCharacter.bio;
+            
+            // 设置角色属性
+            document.getElementById('stat-age-value').textContent = currentCharacter.stats.age;
+            document.getElementById('stat-birthday-value').textContent = currentCharacter.stats.birthday;
+            document.getElementById('stat-ability-value').textContent = currentCharacter.stats.ability;
+            document.getElementById('stat-affiliation-value').textContent = currentCharacter.stats.affiliation;
+            
+            // 设置世界观描述和时间线
+            document.getElementById('world-description').textContent = currentWorld.description;
+            renderTimeline();
+            
+            // 渲染衣橱
+            renderWardrobe();
+            
+            // 渲染相册
+            renderAlbums();
+            
+            // 渲染立绘
+            renderShowcase();
+            
+            // 更新导航栏名称
+            document.getElementById('logo-name').textContent = currentCharacter.name.split(' - ')[0] || '星辰';
+        }
+        
+        // 渲染时间线
+        function renderTimeline() {
+            const timelineContainer = document.getElementById('timeline-container');
+            timelineContainer.innerHTML = '';
+            
+            currentWorld.timeline.forEach((item, index) => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+                timelineItem.innerHTML = `
+                    <div class="edit-area">
+                        <h4 class="editable">${item.title}</h4>
+                    </div>
+                    <div class="edit-area">
+                        <p class="editable">${item.content}</p>
+                    </div>
+                `;
+                timelineContainer.appendChild(timelineItem);
+            });
+        }
+        
+        // 初始化相册
+        function renderAlbums() {
+            albumsContainer.innerHTML = '';
+            
+            currentCharacter.albums.forEach((album, albumIndex) => {
+                const albumElement = document.createElement('div');
+                albumElement.className = 'section';
+                albumElement.innerHTML = `
+                    <div class="edit-area">
+                        <h3 class="editable">${album.name}</h3>
+                    </div>
+                    <div class="album-actions">
+                        <button class="add-image" data-album="${albumIndex}"><i class="fas fa-plus"></i> 添加图片</button>
+                        <button class="delete-album" data-album="${albumIndex}"><i class="fas fa-trash"></i> 删除相册</button>
+                    </div>
+                    <div class="gallery-container" id="album-${albumIndex}">
+                        <!-- 图片将通过JavaScript动态生成 -->
+                    </div>
+                `;
+                
+                albumsContainer.appendChild(albumElement);
+                
+                // 渲染相册中的图片
+                const galleryContainer = document.getElementById(`album-${albumIndex}`);
+                album.images.forEach((image, imageIndex) => {
+                    const galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item';
+                    galleryItem.innerHTML = `
+                        <img src="${image.data}" alt="${image.title}" data-image="${image.data}">
+                        <div class="gallery-overlay">
+                            <div class="edit-area">
+                                <h4 class="editable">${image.title}</h4>
+                            </div>
+                            <div class="edit-area">
+                                <p class="editable">${image.desc}</p>
+                            </div>
+                            <button class="delete-image" data-album="${albumIndex}" data-image="${imageIndex}">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </div>
+                    `;
+                    galleryContainer.appendChild(galleryItem);
+                });
+            });
+        }
+        
+        // 初始化衣橱
+        function renderWardrobe() {
+            wardrobeContainer.innerHTML = '';
+            
+            currentCharacter.wardrobe.forEach((item, index) => {
+                const wardrobeItem = document.createElement('div');
+                wardrobeItem.className = 'wardrobe-item';
+                wardrobeItem.innerHTML = `
+                    <div class="wardrobe-img">
+                        <img src="${item.data}" alt="${item.title}" data-image="${item.data}">
+                    </div>
+                    <div class="wardrobe-info">
+                        <div class="edit-area">
+                            <h4 class="editable">${item.title}</h4>
+                        </div>
+                        <div class="edit-area">
+                            <p class="editable">${item.desc}</p>
+                        </div>
+                    </div>
+                    <div class="wardrobe-overlay">
+                        <button class="delete-wardrobe" data-wardrobe="${index}">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+                wardrobeContainer.appendChild(wardrobeItem);
+            });
+        }
+        
+        // 初始化立绘展示
+        function renderShowcase() {
+            showcaseContainer.innerHTML = '';
+            
+            currentCharacter.showcase.forEach((item, index) => {
+                const showcaseItem = document.createElement('div');
+                showcaseItem.className = 'showcase-item';
+                showcaseItem.innerHTML = `
+                    <img src="${item.data}" alt="${item.title}" data-image="${item.data}">
+                    <div class="edit-area">
+                        <h4 class="editable">${item.title}</h4>
+                    </div>
+                    <div class="showcase-overlay">
+                        <button class="delete-showcase" data-showcase="${index}">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+                showcaseContainer.appendChild(showcaseItem);
+            });
+        }
+        
+        // 添加事件监听器
+        function addEventListeners() {
+            // 全局编辑按钮
+            globalEditBtn.addEventListener('click', toggleGlobalEditMode);
+            
+            // 角色图片更换
+            changeCharacterImageBtn.addEventListener('click', () => {
+                changeCharacterImageModal.style.display = 'flex';
+                characterImagePreview.style.display = 'none';
+                selectedCharacterImageFile = null;
+            });
+            
+            // 添加世界观按钮
+            addWorldBtn.addEventListener('click', () => {
+                const name = worldNameInput.value.trim();
+                if (name) {
+                    addWorldModal.style.display = 'flex';
+                    document.getElementById('worldTitle').value = name;
+                    document.getElementById('worldDesc').value = '';
+                } else {
+                    alert('请输入世界观名称！');
+                }
+            });
+            
+            // 选择世界观按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('select-world') || e.target.closest('.select-world')) {
+                    const btn = e.target.classList.contains('select-world') ? e.target : e.target.closest('.select-world');
+                    const worldId = btn.getAttribute('data-world');
+                    
+                    // 更新当前世界观
+                    appData.currentWorldId = worldId;
+                    currentWorld = appData.worlds.find(w => w.id === worldId);
+                    
+                    // 更新当前角色卡（选择该世界观下的第一个角色卡）
+                    if (currentWorld.characters.length > 0) {
+                        appData.currentCharacterId = currentWorld.characters[0].id;
+                        currentCharacter = currentWorld.characters[0];
+                    } else {
+                        appData.currentCharacterId = null;
+                        currentCharacter = null;
+                    }
+                    
+                    saveAppData();
+                    renderWorlds();
+                    renderCharacters();
+                    loadCharacterData();
+                }
+            });
+            
+            // 删除世界观按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-world') || e.target.closest('.delete-world')) {
+                    const btn = e.target.classList.contains('delete-world') ? e.target : e.target.closest('.delete-world');
+                    const worldId = btn.getAttribute('data-world');
+                    
+                    // 不能删除最后一个世界观
+                    if (appData.worlds.length > 1) {
+                        confirmModal.querySelector('.modal-body p').textContent = 
+                            `确定要删除世界观"${appData.worlds.find(w => w.id === worldId).name}"吗？此操作将删除该世界观下的所有角色卡，且无法撤销。`;
+                        confirmModal.style.display = 'flex';
+                        
+                        // 设置删除类型为世界观
+                        confirmModal.dataset.deleteType = 'world';
+                        confirmModal.dataset.deleteId = worldId;
+                    } else {
+                        alert('至少需要保留一个世界观');
+                    }
+                }
+            });
+            
+            // 添加角色卡按钮
+            addCharacterBtn.addEventListener('click', () => {
+                const name = characterNameInput.value.trim();
+                if (name) {
+                    addCharacterModal.style.display = 'flex';
+                    document.getElementById('characterTitle').value = name;
+                    
+                    // 填充世界观选择框
+                    const worldSelect = document.getElementById('characterWorld');
+                    worldSelect.innerHTML = '<option value="">选择所属世界观</option>';
+                    appData.worlds.forEach(world => {
+                        const option = document.createElement('option');
+                        option.value = world.id;
+                        option.textContent = world.name;
+                        option.selected = world.id === currentWorld.id;
+                        worldSelect.appendChild(option);
+                    });
+                    
+                    characterPreview.style.display = 'none';
+                    selectedCharacterFile = null;
+                } else {
+                    alert('请输入角色名称！');
+                }
+            });
+            
+            // 选择角色卡按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('select-character') || e.target.closest('.select-character')) {
+                    const btn = e.target.classList.contains('select-character') ? e.target : e.target.closest('.select-character');
+                    const characterId = btn.getAttribute('data-character');
+                    
+                    // 更新当前角色卡
+                    appData.currentCharacterId = characterId;
+                    currentCharacter = currentWorld.characters.find(c => c.id === characterId);
+                    
+                    saveAppData();
+                    renderCharacters();
+                    loadCharacterData();
+                }
+            });
+            
+            // 删除角色卡按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-character') || e.target.closest('.delete-character')) {
+                    const btn = e.target.classList.contains('delete-character') ? e.target : e.target.closest('.delete-character');
+                    const characterId = btn.getAttribute('data-character');
+                    
+                    // 不能删除最后一个角色卡
+                    if (currentWorld.characters.length > 1) {
+                        confirmModal.querySelector('.modal-body p').textContent = 
+                            `确定要删除角色卡"${currentWorld.characters.find(c => c.id === characterId).name}"吗？此操作将删除该角色的所有数据，且无法撤销。`;
+                        confirmModal.style.display = 'flex';
+                        
+                        // 设置删除类型为角色卡
+                        confirmModal.dataset.deleteType = 'character';
+                        confirmModal.dataset.deleteId = characterId;
+                    } else {
+                        alert('至少需要保留一个角色卡');
+                    }
+                }
+            });
+            
+            // 创建相册按钮
+            createAlbumBtn.addEventListener('click', () => {
+                const name = albumNameInput.value.trim();
+                if (name) {
+                    // 检查是否已存在同名相册
+                    if (currentCharacter.albums.some(album => album.name === name)) {
+                        alert('已存在同名相册！');
+                        return;
+                    }
+                    
+                    currentCharacter.albums.push({
+                        name: name,
+                        images: []
+                    });
+                    saveAppData();
+                    renderAlbums();
+                    albumNameInput.value = '';
+                } else {
+                    alert('请输入相册名称！');
+                }
+            });
+            
+            // 添加图片按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-image') || e.target.closest('.add-image')) {
+                    const btn = e.target.classList.contains('add-image') ? e.target : e.target.closest('.add-image');
+                    currentAlbumIndex = parseInt(btn.getAttribute('data-album'));
+                    addImageModal.style.display = 'flex';
+                    imagePreview.style.display = 'none';
+                    document.getElementById('imageTitle').value = '';
+                    document.getElementById('imageDesc').value = '';
+                    selectedFile = null;
+                }
+            });
+            
+            // 删除相册按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-album') || e.target.closest('.delete-album')) {
+                    const btn = e.target.classList.contains('delete-album') ? e.target : e.target.closest('.delete-album');
+                    currentAlbumIndex = parseInt(btn.getAttribute('data-album'));
+                    if (currentCharacter.albums.length > 1) {
+                        confirmModal.querySelector('.modal-body p').textContent = 
+                            `确定要删除相册"${currentCharacter.albums[currentAlbumIndex].name}"吗？此操作无法撤销。`;
+                        confirmModal.style.display = 'flex';
+                        
+                        // 设置删除类型为相册
+                        confirmModal.dataset.deleteType = 'album';
+                    } else {
+                        alert('至少需要保留一个相册');
+                    }
+                }
+            });
+            
+            // 删除图片按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-image') || e.target.closest('.delete-image')) {
+                    e.stopPropagation();
+                    const btn = e.target.classList.contains('delete-image') ? e.target : e.target.closest('.delete-image');
+                    currentAlbumIndex = parseInt(btn.getAttribute('data-album'));
+                    currentImageIndex = parseInt(btn.getAttribute('data-image'));
+                    confirmModal.querySelector('.modal-body p').textContent = 
+                        `确定要删除这张图片吗？此操作无法撤销。`;
+                    confirmModal.style.display = 'flex';
+                    
+                    // 设置删除类型为图片
+                    confirmModal.dataset.deleteType = 'image';
+                }
+            });
+            
+            // 添加服装按钮
+            addWardrobeBtn.addEventListener('click', () => {
+                const name = wardrobeNameInput.value.trim();
+                if (name) {
+                    addWardrobeModal.style.display = 'flex';
+                    wardrobePreview.style.display = 'none';
+                    document.getElementById('wardrobeTitle').value = name;
+                    document.getElementById('wardrobeDesc').value = '';
+                    selectedWardrobeFile = null;
+                } else {
+                    alert('请输入服装名称！');
+                }
+            });
+            
+            // 删除服装按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-wardrobe') || e.target.closest('.delete-wardrobe')) {
+                    e.stopPropagation();
+                    const btn = e.target.classList.contains('delete-wardrobe') ? e.target : e.target.closest('.delete-wardrobe');
+                    currentWardrobeIndex = parseInt(btn.getAttribute('data-wardrobe'));
+                    confirmModal.querySelector('.modal-body p').textContent = 
+                        `确定要删除这件服装吗？此操作无法撤销。`;
+                    confirmModal.style.display = 'flex';
+                    
+                    // 设置删除类型为服装
+                    confirmModal.dataset.deleteType = 'wardrobe';
+                }
+            });
+            
+            // 添加立绘按钮
+            addShowcaseBtn.addEventListener('click', () => {
+                const name = showcaseNameInput.value.trim();
+                if (name) {
+                    addShowcaseModal.style.display = 'flex';
+                    showcasePreview.style.display = 'none';
+                    document.getElementById('showcaseTitle').value = name;
+                    selectedShowcaseFile = null;
+                } else {
+                    alert('请输入立绘名称！');
+                }
+            });
+            
+            // 删除立绘按钮
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-showcase') || e.target.closest('.delete-showcase')) {
+                    e.stopPropagation();
+                    const btn = e.target.classList.contains('delete-showcase') ? e.target : e.target.closest('.delete-showcase');
+                    currentShowcaseIndex = parseInt(btn.getAttribute('data-showcase'));
+                    confirmModal.querySelector('.modal-body p').textContent = 
+                        `确定要删除这个立绘吗？此操作无法撤销。`;
+                    confirmModal.style.display = 'flex';
+                    
+                    // 设置删除类型为立绘
+                    confirmModal.dataset.deleteType = 'showcase';
+                }
+            });
+            
+            // 添加时间线项目按钮
+            document.getElementById('addTimelineItem').addEventListener('click', () => {
+                const newItem = {
+                    title: '新时间线项目',
+                    content: '请输入内容...'
+                };
+                
+                currentWorld.timeline.push(newItem);
+                saveAppData();
+                renderTimeline();
+            });
+            
+            // 模态框关闭按钮
+            document.querySelectorAll('.modal .close, .modal .cancel').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    addWorldModal.style.display = 'none';
+                    addCharacterModal.style.display = 'none';
+                    addImageModal.style.display = 'none';
+                    addWardrobeModal.style.display = 'none';
+                    addShowcaseModal.style.display = 'none';
+                    changeCharacterImageModal.style.display = 'none';
+                    confirmModal.style.display = 'none';
+                });
+            });
+            
+            // 文件选择变化事件 - 世界观角色图片
+            characterFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedCharacterFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewCharacter.src = event.target.result;
+                        characterPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 文件选择变化事件 - 角色图片
+            characterImageFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedCharacterImageFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewCharacterImage.src = event.target.result;
+                        characterImagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 文件选择变化事件 - 相册
+            imageFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewImage.src = event.target.result;
+                        imagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 文件选择变化事件 - 服装
+            wardrobeFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedWardrobeFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewWardrobe.src = event.target.result;
+                        wardrobePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 文件选择变化事件 - 立绘
+            showcaseFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedShowcaseFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewShowcase.src = event.target.result;
+                        showcasePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 拖放功能 - 世界观角色图片
+            const characterUploadLabel = document.querySelector('#addCharacterModal .file-upload-label');
+            characterUploadLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                characterUploadLabel.style.borderColor = 'var(--primary)';
+                characterUploadLabel.style.backgroundColor = 'rgba(108, 92, 231, 0.1)';
+            });
+            
+            characterUploadLabel.addEventListener('dragleave', () => {
+                characterUploadLabel.style.borderColor = 'var(--secondary)';
+                characterUploadLabel.style.backgroundColor = 'transparent';
+            });
+            
+            characterUploadLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                characterUploadLabel.style.borderColor = 'var(--secondary)';
+                characterUploadLabel.style.backgroundColor = 'transparent';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.match('image.*')) {
+                    selectedCharacterFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewCharacter.src = event.target.result;
+                        characterPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 拖放功能 - 角色图片
+            const characterImageUploadLabel = document.querySelector('#changeCharacterImageModal .file-upload-label');
+            characterImageUploadLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                characterImageUploadLabel.style.borderColor = 'var(--primary)';
+                characterImageUploadLabel.style.backgroundColor = 'rgba(108, 92, 231, 0.1)';
+            });
+            
+            characterImageUploadLabel.addEventListener('dragleave', () => {
+                characterImageUploadLabel.style.borderColor = 'var(--secondary)';
+                characterImageUploadLabel.style.backgroundColor = 'transparent';
+            });
+            
+            characterImageUploadLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                characterImageUploadLabel.style.borderColor = 'var(--secondary)';
+                characterImageUploadLabel.style.backgroundColor = 'transparent';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.match('image.*')) {
+                    selectedCharacterImageFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewCharacterImage.src = event.target.result;
+                        characterImagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 拖放功能 - 相册
+            const uploadLabel = document.querySelector('#addImageModal .file-upload-label');
+            uploadLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadLabel.style.borderColor = 'var(--primary)';
+                uploadLabel.style.backgroundColor = 'rgba(108, 92, 231, 0.1)';
+            });
+            
+            uploadLabel.addEventListener('dragleave', () => {
+                uploadLabel.style.borderColor = 'var(--secondary)';
+                uploadLabel.style.backgroundColor = 'transparent';
+            });
+            
+            uploadLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadLabel.style.borderColor = 'var(--secondary)';
+                uploadLabel.style.backgroundColor = 'transparent';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.match('image.*')) {
+                    selectedFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewImage.src = event.target.result;
+                        imagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 拖放功能 - 服装
+            const wardrobeUploadLabel = document.querySelector('#addWardrobeModal .file-upload-label');
+            wardrobeUploadLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                wardrobeUploadLabel.style.borderColor = 'var(--primary)';
+                wardrobeUploadLabel.style.backgroundColor = 'rgba(108, 92, 231, 0.1)';
+            });
+            
+            wardrobeUploadLabel.addEventListener('dragleave', () => {
+                wardrobeUploadLabel.style.borderColor = 'var(--secondary)';
+                wardrobeUploadLabel.style.backgroundColor = 'transparent';
+            });
+            
+            wardrobeUploadLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                wardrobeUploadLabel.style.borderColor = 'var(--secondary)';
+                wardrobeUploadLabel.style.backgroundColor = 'transparent';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.match('image.*')) {
+                    selectedWardrobeFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewWardrobe.src = event.target.result;
+                        wardrobePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 拖放功能 - 立绘
+            const showcaseUploadLabel = document.querySelector('#addShowcaseModal .file-upload-label');
+            showcaseUploadLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                showcaseUploadLabel.style.borderColor = 'var(--primary)';
+                showcaseUploadLabel.style.backgroundColor = 'rgba(108, 92, 231, 0.1)';
+            });
+            
+            showcaseUploadLabel.addEventListener('dragleave', () => {
+                showcaseUploadLabel.style.borderColor = 'var(--secondary)';
+                showcaseUploadLabel.style.backgroundColor = 'transparent';
+            });
+            
+            showcaseUploadLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                showcaseUploadLabel.style.borderColor = 'var(--secondary)';
+                showcaseUploadLabel.style.backgroundColor = 'transparent';
+                
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.match('image.*')) {
+                    selectedShowcaseFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewShowcase.src = event.target.result;
+                        showcasePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 添加世界观确认按钮
+            document.querySelector('#addWorldModal .confirm').addEventListener('click', () => {
+                const title = document.getElementById('worldTitle').value.trim();
+                const desc = document.getElementById('worldDesc').value.trim();
+                
+                if (!title) {
+                    alert('请输入世界观名称！');
+                    return;
+                }
+                
+                const newWorld = {
+                    id: 'world-' + Date.now(),
+                    name: title,
+                    description: desc || '暂无描述',
+                    timeline: [],
+                    characters: []
+                };
+                
+                appData.worlds.push(newWorld);
+                appData.currentWorldId = newWorld.id;
+                currentWorld = newWorld;
+                
+                // 创建默认角色卡
+                const defaultCharacter = {
+                    id: 'char-' + Date.now(),
+                    name: '新角色',
+                    worldId: newWorld.id,
+                    image: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80',
+                    intro: '这是一个新角色，请编辑介绍信息',
+                    bio: '这是一个新角色，请编辑背景故事',
+                    stats: {
+                        age: '未知',
+                        birthday: '未知',
+                        ability: '未知',
+                        affiliation: '未知'
+                    },
+                    wardrobe: [],
+                    albums: [{
+                        name: '默认相册',
+                        images: []
+                    }],
+                    showcase: []
+                };
+                
+                newWorld.characters.push(defaultCharacter);
+                appData.currentCharacterId = defaultCharacter.id;
+                currentCharacter = defaultCharacter;
+                
+                saveAppData();
+                renderWorlds();
+                renderCharacters();
+                loadCharacterData();
+                
+                addWorldModal.style.display = 'none';
+                worldNameInput.value = '';
+            });
+            
+            // 添加角色卡确认按钮
+            document.querySelector('#addCharacterModal .confirm').addEventListener('click', () => {
+                if (!selectedCharacterFile) {
+                    alert('请先选择一张角色图片');
+                    return;
+                }
+                
+                const title = document.getElementById('characterTitle').value.trim();
+                const worldId = document.getElementById('characterWorld').value;
+                
+                if (!title) {
+                    alert('请输入角色名称！');
+                    return;
+                }
+                
+                if (!worldId) {
+                    alert('请选择所属世界观！');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const newCharacter = {
+                        id: 'char-' + Date.now(),
+                        name: title,
+                        worldId: worldId,
+                        image: event.target.result,
+                        intro: '这是一个新角色，请编辑介绍信息',
+                        bio: '这是一个新角色，请编辑背景故事',
+                        stats: {
+                            age: '未知',
+                            birthday: '未知',
+                            ability: '未知',
+                            affiliation: '未知'
+                        },
+                        wardrobe: [],
+                        albums: [{
+                            name: '默认相册',
+                            images: []
+                        }],
+                        showcase: []
+                    };
+                    
+                    // 找到对应的世界观
+                    const world = appData.worlds.find(w => w.id === worldId);
+                    world.characters.push(newCharacter);
+                    
+                    // 设置为当前角色卡
+                    appData.currentCharacterId = newCharacter.id;
+                    currentCharacter = newCharacter;
+                    
+                    saveAppData();
+                    renderCharacters();
+                    loadCharacterData();
+                    
+                    addCharacterModal.style.display = 'none';
+                    characterNameInput.value = '';
+                };
+                reader.readAsDataURL(selectedCharacterFile);
+            });
+            
+            // 更换角色图片确认按钮
+            document.querySelector('#changeCharacterImageModal .confirm').addEventListener('click', () => {
+                if (!selectedCharacterImageFile) {
+                    alert('请先选择一张角色图片');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentCharacter.image = event.target.result;
+                    characterImage.src = event.target.result;
+                    saveAppData();
+                    changeCharacterImageModal.style.display = 'none';
+                };
+                reader.readAsDataURL(selectedCharacterImageFile);
+            });
+            
+            // 添加图片确认按钮
+            document.querySelector('#addImageModal .confirm').addEventListener('click', () => {
+                if (!selectedFile) {
+                    alert('请先选择一张图片');
+                    return;
+                }
+                
+                const title = document.getElementById('imageTitle').value.trim();
+                const desc = document.getElementById('imageDesc').value.trim();
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentCharacter.albums[currentAlbumIndex].images.push({
+                        data: event.target.result,
+                        title: title || '未命名图片',
+                        desc: desc || '暂无描述'
+                    });
+                    saveAppData();
+                    renderAlbums();
+                    addImageModal.style.display = 'none';
+                };
+                reader.readAsDataURL(selectedFile);
+            });
+            
+            // 添加服装确认按钮
+            document.querySelector('#addWardrobeModal .confirm').addEventListener('click', () => {
+                if (!selectedWardrobeFile) {
+                    alert('请先选择一张服装图片');
+                    return;
+                }
+                
+                const title = document.getElementById('wardrobeTitle').value.trim();
+                const desc = document.getElementById('wardrobeDesc').value.trim();
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentCharacter.wardrobe.push({
+                        data: event.target.result,
+                        title: title || '未命名服装',
+                        desc: desc || '暂无描述'
+                    });
+                    saveAppData();
+                    renderWardrobe();
+                    addWardrobeModal.style.display = 'none';
+                    wardrobeNameInput.value = '';
+                };
+                reader.readAsDataURL(selectedWardrobeFile);
+            });
+            
+            // 添加立绘确认按钮
+            document.querySelector('#addShowcaseModal .confirm').addEventListener('click', () => {
+                if (!selectedShowcaseFile) {
+                    alert('请先选择一张立绘图片');
+                    return;
+                }
+                
+                const title = document.getElementById('showcaseTitle').value.trim();
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentCharacter.showcase.push({
+                        data: event.target.result,
+                        title: title || '未命名立绘'
+                    });
+                    saveAppData();
+                    renderShowcase();
+                    addShowcaseModal.style.display = 'none';
+                    showcaseNameInput.value = '';
+                };
+                reader.readAsDataURL(selectedShowcaseFile);
+            });
+            
+            // 删除确认按钮
+            document.querySelector('#confirmModal .confirm').addEventListener('click', () => {
+                if (confirmModal.querySelector('.confirm').classList.contains('delete')) {
+                    const deleteType = confirmModal.dataset.deleteType;
+                    
+                    if (deleteType === 'world') {
+                        // 删除世界观
+                        const worldId = confirmModal.dataset.deleteId;
+                        
+                        // 不能删除当前选中的世界观
+                        if (worldId === appData.currentWorldId) {
+                            alert('不能删除当前选中的世界观！');
+                            return;
+                        }
+                        
+                        // 从数组中移除
+                        appData.worlds = appData.worlds.filter(w => w.id !== worldId);
+                        
+                        // 如果删除了当前世界观，选择第一个世界观作为当前世界观
+                        if (appData.worlds.length > 0) {
+                            appData.currentWorldId = appData.worlds[0].id;
+                            currentWorld = appData.worlds[0];
+                            
+                            // 选择该世界观下的第一个角色卡
+                            if (currentWorld.characters.length > 0) {
+                                appData.currentCharacterId = currentWorld.characters[0].id;
+                                currentCharacter = currentWorld.characters[0];
+                            } else {
+                                appData.currentCharacterId = null;
+                                currentCharacter = null;
+                            }
+                        } else {
+                            // 不应该发生，因为前面已经检查过至少保留一个世界观
+                            appData.currentWorldId = null;
+                            appData.currentCharacterId = null;
+                            currentWorld = null;
+                            currentCharacter = null;
+                        }
+                        
+                        saveAppData();
+                        renderWorlds();
+                        renderCharacters();
+                        loadCharacterData();
+                    }
+                    else if (deleteType === 'character') {
+                        // 删除角色卡
+                        const characterId = confirmModal.dataset.deleteId;
+                        
+                        // 不能删除当前选中的角色卡
+                        if (characterId === appData.currentCharacterId) {
+                            alert('不能删除当前选中的角色卡！');
+                            return;
+                        }
+                        
+                        // 从数组中移除
+                        currentWorld.characters = currentWorld.characters.filter(c => c.id !== characterId);
+                        
+                        saveAppData();
+                        renderCharacters();
+                    }
+                    else if (deleteType === 'album') {
+                        // 删除相册
+                        currentCharacter.albums.splice(currentAlbumIndex, 1);
+                        saveAppData();
+                        renderAlbums();
+                    }
+                    else if (deleteType === 'image') {
+                        // 删除图片
+                        currentCharacter.albums[currentAlbumIndex].images.splice(currentImageIndex, 1);
+                        saveAppData();
+                        renderAlbums();
+                    }
+                    else if (deleteType === 'wardrobe') {
+                        // 删除服装
+                        currentCharacter.wardrobe.splice(currentWardrobeIndex, 1);
+                        saveAppData();
+                        renderWardrobe();
+                    }
+                    else if (deleteType === 'showcase') {
+                        // 删除立绘
+                        currentCharacter.showcase.splice(currentShowcaseIndex, 1);
+                        saveAppData();
+                        renderShowcase();
+                    }
+                }
+                confirmModal.style.display = 'none';
+            });
+            
+            // 图片点击查看大图
+            document.addEventListener('click', (e) => {
+                if (e.target.tagName === 'IMG' && e.target.hasAttribute('data-image')) {
+                    viewerImage.src = e.target.src;
+                    imageViewer.classList.add('active');
+                }
+            });
+            
+            // 关闭图片查看器
+            imageViewer.querySelector('.close').addEventListener('click', () => {
+                imageViewer.classList.remove('active');
+            });
+            
+            // 点击图片查看器外部关闭
+            imageViewer.addEventListener('click', (e) => {
+                if (e.target === imageViewer) {
+                    imageViewer.classList.remove('active');
+                }
+            });
+            
+            // 监听所有可编辑元素的变化
+            document.addEventListener('input', (e) => {
+                if (e.target.classList.contains('editable') && isGlobalEditMode) {
+                    // 实时保存修改
+                    updateDataStore(e.target);
+                }
+            });
+        }
+        
+        // 更新数据存储
+        function updateDataStore(element) {
+            const elementId = element.id;
+            
+            // 角色名称
+            if (elementId === 'characterName') {
+                currentCharacter.name = element.textContent;
+                saveAppData();
+                // 更新导航栏名称
+                document.getElementById('logo-name').textContent = element.textContent.split(' - ')[0] || '星辰';
+                renderCharacters();
+                return;
+            }
+            
+            // 角色介绍
+            if (elementId === 'characterIntro') {
+                currentCharacter.intro = element.textContent;
+                saveAppData();
+                renderCharacters();
+                return;
+            }
+            
+            // 角色传记
+            if (elementId === 'characterBio') {
+                currentCharacter.bio = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 角色属性
+            if (elementId === 'stat-age-value') {
+                currentCharacter.stats.age = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            if (elementId === 'stat-birthday-value') {
+                currentCharacter.stats.birthday = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            if (elementId === 'stat-ability-value') {
+                currentCharacter.stats.ability = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            if (elementId === 'stat-affiliation-value') {
+                currentCharacter.stats.affiliation = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 世界观描述
+            if (elementId === 'world-description') {
+                currentWorld.description = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 时间线标题
+            if (elementId.startsWith('timeline-title-')) {
+                const index = parseInt(elementId.split('-')[2]);
+                currentWorld.timeline[index].title = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 时间线内容
+            if (elementId.startsWith('timeline-content-')) {
+                const index = parseInt(elementId.split('-')[2]);
+                currentWorld.timeline[index].content = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 相册标题
+            if (elementId.startsWith('album-title-')) {
+                const index = parseInt(elementId.split('-')[2]);
+                currentCharacter.albums[index].name = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 相册图片标题
+            if (elementId.startsWith('album-image-title-')) {
+                const parts = elementId.split('-');
+                const albumIndex = parseInt(parts[3]);
+                const imageIndex = parseInt(parts[4]);
+                currentCharacter.albums[albumIndex].images[imageIndex].title = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 相册图片描述
+            if (elementId.startsWith('album-image-desc-')) {
+                const parts = elementId.split('-');
+                const albumIndex = parseInt(parts[3]);
+                const imageIndex = parseInt(parts[4]);
+                currentCharacter.albums[albumIndex].images[imageIndex].desc = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 服装标题
+            if (elementId.startsWith('wardrobe-title-')) {
+                const index = parseInt(elementId.split('-')[2]);
+                currentCharacter.wardrobe[index].title = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 服装描述
+            if (elementId.startsWith('wardrobe-desc-')) {
+                const index = parseInt(elementId.split('-')[2]);
+                currentCharacter.wardrobe[index].desc = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 立绘标题
+            if (elementId.startsWith('showcase-title-')) {
+                const index = parseInt(elementId.split('-')[2]);
+                currentCharacter.showcase[index].title = element.textContent;
+                saveAppData();
+                return;
+            }
+            
+            // 导航栏文本
+            if (elementId === 'nav-worlds') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'nav-characters') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'nav-intro') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'nav-world') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'nav-wardrobe') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'nav-gallery') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'nav-showcase') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            // 标题文本
+            if (elementId === 'worlds-title') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'characters-title') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'intro-title') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'world-title') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'wardrobe-title') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'gallery-title') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            if (elementId === 'showcase-title') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            // 页脚文本
+            if (elementId === 'footer-text') {
+                // 不需要保存，因为这是固定文本
+                return;
+            }
+            
+            // 世界观列表中的项目
+            if (element.closest('.world-item')) {
+                const worldId = element.closest('.world-item').dataset.worldId;
+                const world = appData.worlds.find(w => w.id === worldId);
+                
+                if (element.tagName === 'H3') {
+                    world.name = element.textContent;
+                } else if (element.tagName === 'P') {
+                    world.description = element.textContent;
+                }
+                saveAppData();
+                return;
+            }
+            
+            // 角色列表中的项目
+            if (element.closest('.character-item')) {
+                const characterId = element.closest('.character-item').dataset.characterId;
+                const character = currentWorld.characters.find(c => c.id === characterId);
+                
+                if (element.tagName === 'H4') {
+                    character.name = element.textContent;
+                } else if (element.tagName === 'P') {
+                    character.intro = element.textContent;
+                }
+                saveAppData();
+                renderCharacters();
+                return;
+            }
+        }
+        
+        // 切换全局编辑模式
+        function toggleGlobalEditMode() {
+            isGlobalEditMode = !isGlobalEditMode;
+            
+            // 更新按钮图标
+            globalEditBtn.innerHTML = `<i class="fas fa-${isGlobalEditMode ? 'save' : 'edit'}"></i>`;
+            
+            // 切换编辑模式类
+            document.body.classList.toggle('edit-mode', isGlobalEditMode);
+            
+            // 设置所有可编辑元素的内容可编辑状态
+            document.querySelectorAll('.editable').forEach(element => {
+                element.contentEditable = isGlobalEditMode;
+            });
+            
+            // 如果是保存操作
+            if (!isGlobalEditMode) {
+                // 保存所有修改
+                saveAllData();
+                alert('所有修改已保存');
+            }
+        }
+        
+        // 保存所有数据
+        function saveAllData() {
+            // 保存角色数据
+            if (currentCharacter) {
+                currentCharacter.name = document.getElementById('characterName').textContent;
+                currentCharacter.intro = document.getElementById('characterIntro').textContent;
+                currentCharacter.bio = document.getElementById('characterBio').textContent;
+                
+                // 更新角色属性
+                currentCharacter.stats.age = document.getElementById('stat-age-value').textContent;
+                currentCharacter.stats.birthday = document.getElementById('stat-birthday-value').textContent;
+                currentCharacter.stats.ability = document.getElementById('stat-ability-value').textContent;
+                currentCharacter.stats.affiliation = document.getElementById('stat-affiliation-value').textContent;
+            }
+            
+            // 保存世界观数据
+            if (currentWorld) {
+                currentWorld.description = document.getElementById('world-description').textContent;
+                
+                // 保存时间线数据
+                const timelineItems = document.querySelectorAll('.timeline-item');
+                currentWorld.timeline = [];
+                
+                timelineItems.forEach((item, index) => {
+                    const title = item.querySelector('h4').textContent;
+                    const content = item.querySelector('p').textContent;
+                    currentWorld.timeline.push({
+                        title: title,
+                        content: content
+                    });
+                });
+            }
+            
+            // 保存相册数据
+            if (currentCharacter) {
+                const albumElements = document.querySelectorAll('#albumsContainer > .section');
+                currentCharacter.albums = [];
+                
+                albumElements.forEach((albumElement, albumIndex) => {
+                    const albumName = albumElement.querySelector('h3').textContent;
+                    const images = [];
+                    
+                    const galleryItems = albumElement.querySelectorAll('.gallery-item');
+                    galleryItems.forEach(item => {
+                        const img = item.querySelector('img');
+                        const overlay = item.querySelector('.gallery-overlay');
+                        const title = overlay.querySelector('h4').textContent;
+                        const desc = overlay.querySelector('p').textContent;
+                        
+                        images.push({
+                            data: img.src,
+                            title: title,
+                            desc: desc
+                        });
+                    });
+                    
+                    currentCharacter.albums.push({
+                        name: albumName,
+                        images: images
+                    });
+                });
+                
+                // 保存服装数据
+                const wardrobeElements = document.querySelectorAll('.wardrobe-item');
+                currentCharacter.wardrobe = [];
+                
+                wardrobeElements.forEach((item, index) => {
+                    const img = item.querySelector('img');
+                    const info = item.querySelector('.wardrobe-info');
+                    const title = info.querySelector('h4').textContent;
+                    const desc = info.querySelector('p').textContent;
+                    
+                    currentCharacter.wardrobe.push({
+                        data: img.src,
+                        title: title,
+                        desc: desc
+                    });
+                });
+                
+                // 保存立绘数据
+                const showcaseElements = document.querySelectorAll('.showcase-item');
+                currentCharacter.showcase = [];
+                
+                showcaseElements.forEach((item, index) => {
+                    const img = item.querySelector('img');
+                    const title = item.querySelector('h4').textContent;
+                    
+                    currentCharacter.showcase.push({
+                        data: img.src,
+                        title: title
+                    });
+                });
+            }
+            
+            // 保存到本地存储
+            saveAppData();
+        }
+        
+        // 保存应用数据到本地存储
+        function saveAppData() {
+        saveToFirebase();
+        saveToLocal();
+        }
+        
+        // 导航激活效果
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                document.querySelectorAll('.nav-links a').forEach(a => {
+                    a.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // 页面滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // 初始化页面
+        initPage();
+    </script>
+</body>
+</html>
